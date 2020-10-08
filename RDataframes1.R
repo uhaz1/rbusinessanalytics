@@ -45,7 +45,7 @@ summary(accounts)
 ### Import data from a file###
 
 #Import data from csv files to a data frame
-bank.marketing <- read.csv('./data/bank-additional/bank-additional.csv',sep=";")
+bank.marketing <- read.csv('./data/Advertising.csv',sep=";")
 
 #import from an excel file
 install.packages('readxl')
