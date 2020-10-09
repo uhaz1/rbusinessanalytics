@@ -29,11 +29,14 @@ library(ISLR)
 
 #names(Boston)
 
+#### Model 1 : Simple Linear Regression : predict sales form TV spending
+
 ### 1. import data 
 advertising <- read.csv('./data/Advertising.csv')
 
 ## view sample
-head(advertising)
+head(advertising, n=10) #top rows
+tail(advertising) # last rows
 
 #check data structure
 str(advertising)
@@ -44,7 +47,6 @@ summary(advertising)
 ###   - check for missing values , other data issues
 any(is.na(advertising))
 
-
 ###   - set correct data types for columns
 ## factor() : categorical vairables- ensure they are defined as factor using factor()
 str(advertising) 
@@ -53,6 +55,33 @@ str(advertising)
 ### 3. exploratory Data Analysis (EDA) 
 ###   - check for assumptions - multicollinearity - high correlations among input variables
 # get numeric columns
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+## ggplot is based on the philosophy of grammar of graphics
+## the idea is to add layers to visualisation
+## layers 1-3 
+## layer 1: data , layer 2: aesthetics (data columns to use in plotting), 
+## layer 3 : geometries (type of plot)
+
+## distribution of variables
+
+### TV ###
+## Aesthetic mappings (data columns to use in plotting) ##
+p1 <- ggplot(data=advertising, aes(x=TV))
+## Geometric objects (type of plot) ##
+p1 + geom_histogram()
+
+p2 <- ggplot(data=advertising, aes(x=sales))  ## Aesthetic mappings (data columns to use in plotting) ##
+p2 + geom_histogram()  ## Geometric objects (type of plot) ##
+
+##Scatter plot - sales vs TV ###
+## Aesthetic mappings (data columns to use in plotting) ##
+p3 <- ggplot(data=advertising, aes(x=TV, y=sales))
+## Geometric objects (type of plot) ##
+p3 + geom_point()
+
 numeric.cols <- sapply(advertising, is.numeric)
 print(numeric.cols)
 
