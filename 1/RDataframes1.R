@@ -25,7 +25,6 @@ women
 class(women)
 
 
-
 ## create a data frame form column vectors: data.frame() ##
 #create vectors
 day <- c('Mon','Tue','Wed','Thu','Fri','Sat','Sun')
@@ -47,14 +46,16 @@ summary(accounts)
 #Import data from csv files to a data frame
 #sep=";"
 bank.marketing <- read.csv('./data/Advertising.csv')
+print(bank.marketing)
+head(bank.marketing)
 
 #import from an excel file
-install.packages('readxl')
+#install.packages('readxl')
 library(readxl)
 df1 <- read_excel('file1.xlsx',sheet='Sheet1')
 
 #Export dataframe to csv
-write.csv(bank.marketing,file='./data/bank-additional/test_export.csv')
+write.csv(bank.marketing,file='./data/test_export.csv')
 
 ### getting information about a dataframe ###
 
@@ -77,10 +78,10 @@ rownames(bank.marketing)
 bank.marketing[1,2]
 #get multiple calles in a data frame
 df <- bank.marketing[1:2,1:2]
-df
+print(df)
 #referencing rows
 df2 <- bank.marketing[2,]
-
+print(df2)
 #head() returns the first few rows
 head(bank.marketing)
 head(bank.marketing,n=10)
@@ -89,12 +90,12 @@ tail(bank.marketing)
 tail(bank.marketing,n=10)
 
 # referencing columns #
-bank.marketing$job       #returns a vector
-col<- bank.marketing$job #returns a vector
+bank.marketing$sales      #returns a vector
+col<- bank.marketing$sales #returns a vector
 class(col)  #return the class of the elements of the vector
 
-bank.marketing[1,'job']   #returns a vector
-col2 <- bank.marketing[,'job']  #returns a vector
+bank.marketing[1,'sales']   #returns a vector
+col2 <- bank.marketing[,'sales']  #returns a vector
 class(col2)  #return the class of the elements of the vector
 
 bank.marketing[['job']]
@@ -102,8 +103,8 @@ col3 <- bank.marketing[['job']]
 class(col3)
 col3 
 
-bank.marketing[,c('age','job','marital')]   #returns a vector
-col4 <- bank.marketing[,c('age','job','marital')]  #returns a vector
+bank.marketing[,c('sales','radio','newspaper')]   #returns a vector
+col4 <- bank.marketing[,c('sales','radio','newspaper')]  #returns a vector
 class(col4)  #return the class of the elements of the vector
 
 #refer columns by column number
@@ -121,14 +122,15 @@ bank.marketing[,-c(1,2,3)]
 #adding columns
 #df[,'new_col'] <- df$col  #copy a column
 #df$new_col <- df$col  #copy a column
-bank.marketing[,'new_age'] <- bank.marketing$age *2  #create new_age = age*2
+bank.marketing$sales2 <- bank.marketing$sales *2
+bank.marketing[,'sales3'] <- bank.marketing$sales *2  #create new_age = age*2
 bank.marketing[,'new_col1'] <- 'test'  #create new_age = age*2
-bank.marketing$new_col1 <- 'test'  #create new_age = age*2
+bank.marketing$new_col2 <- 'test'  #create new_age = age*2
 
 #setting column names
 #rename column  using colnames()
-colnames(bank.marketing)[1] <- 'age1'
-colnames(bank.marketing)[1] <- 'age'
+colnames(bank.marketing)[1] <- 'TV2'
+colnames(bank.marketing)[1] <- 'TV'
 
 #rename all columns at once: colnames(df) <- c(....)
 
@@ -136,12 +138,11 @@ colnames(bank.marketing)[1] <- 'age'
 #exclude row: df[-n,]
 
 #conditinal row selection - filter
-v1 <- bank.marketing[bank.marketing$age >30 & bank.marketing$age < 40, ]
+v1 <- bank.marketing[bank.marketing$sales >10 & bank.marketing$sales < 20, ]
 head(v1,n=20)
-bank.marketing[bank.marketing$age >=30 & bank.marketing$age <= 40, ]
-bank.marketing[bank.marketing$age ==30, ]
-bank.marketing[bank.marketing$age !=30, ]
-bank.marketing[bank.marketing$age ==30 & bank.marketing$month =='may', ]
+bank.marketing[bank.marketing$sales == 9.3, ]
+bank.marketing[bank.marketing$sales != 9.3, ]
+bank.marketing[bank.marketing$sales >10 & bank.marketing$TV <50, ]
 
 #head
 
@@ -150,11 +151,12 @@ bank.marketing[bank.marketing$age ==30 & bank.marketing$month =='may', ]
 
 ### Dealing with missing data ###
 # detect any missing data in df
+is.na(bank.marketing)
 any(is.na(bank.marketing)) 
 # anywhere in col
-any(is.na(bank.marketing$age)) 
+any(is.na(bank.marketing$sales)) 
 # delete selected missing data rows - df <- df[!is.na(df$col), ]
-bank.marketing <- bank.marketing[!is.na(bank.marketing$age), ]
+bank.marketing <- bank.marketing[!is.na(bank.marketing$sales), ]
 
 
 # replace NAs with something else
