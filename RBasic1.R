@@ -1,17 +1,28 @@
 ## R BASICS ##
 
+x <- 1
+y <- 'happy day'
+
+#packages
+#install.packages("ggplot2")
+library(ggplot2)
+
+#help
+?vector
+help(vector)
+
 # Use hashtags for comments
 
 ### Arithmetic with R ###
 # addition
 1 + 2
-#subtraction
+# subtraction
 4-3
-#multiplication
+# multiplication
 5*4
-#Division
+# Division
 5/2
-#Exponents
+# Exponents
 2^3
 #Modulo
 5 %% 2
@@ -29,12 +40,16 @@
 # Use hashtags for comments
 # assigning 100 to variable X
 x <- 1200
+balance <- 1400
 
 # Let's see the variable!
 x
+print(x)
 
 bank.balance <- 1000
 deposit <- 200
+
+print(bank.balance + deposit)
 
 bank.balance <- bank.balance + deposit
 
@@ -97,18 +112,23 @@ v1 < v2
 3 != 3
 3 != 2
 
+b <- TRUE #FALSE
+  
 #element-wise comparion of vectors
 vec1 <- c(5,3,8)
+print(vec1)
 vec2 <- c(4,5,9)
 print(vec2)
+class(vec1)
 
 vec1 > vec2
 
+# compare a number to an entire vector
+vec1 < 4
+vec1 == 3
 vec3 <- c("hi", "there","hello")
 print(vec3)
-# compare a number to an entire vector
- vec1 < 4
- vec1 == 3
+class(vec3)
 
 ### R data types ###
 #numeric - floating point/decimal and integers
@@ -129,7 +149,7 @@ class(bool2)
 
 #Character - text or string values. need to use quotation (single or double) marks
 char1 <- "Basket of apples" #double quotes
-char1
+print(char1)
 class(char1)
 
 char2 <- 'weather forecast' #single quotes works as well
@@ -146,43 +166,43 @@ class(char2)
 # a vector is created using the function c()
 #numeric vector
 vec1 <- c(3,4,15,16)
-vec1
+print(vec1)
 class(vec1)
 #character
 vec2 <- c('A','B','S')
-vec2
+print(vec2)
 class(vec2)
 #logical
 vec3 <- c(TRUE,FALSE)
-vec3
+print(vec3)
 class(vec3)
 
 #you cannot mix data types. if you try, all elements will be forced to a single data type
 vec4 <- c(4,'APPLE')
-vec4
+print(vec4)
 class(vec4)
 
 #names can be assigned to each element of a vector
 vec5 <- c(3,4,15,16)
 names(vec5) <- c('Jan','Feb','Mar','Apr')
-vec5
+print(vec5)
 
 ### Vector Indexing and Slicing ###
 vec1 <- c(3,4,15,16)
 vec2 <- c('A','B','S')
 
 #to get an element of a vector using bracket notation
-vec1[1]
-vec1[3]
-vec2[1]
-vec2[3]
+print(vec1[1])
+print(vec1[3])
+print(vec2[1])
+print(vec2[3])
 
 # to get multiple elements of a vector - multiple indexing 
 # pass a vector of index positions
-vec1[c(1,3)]
+print(vec1[c(1,3)])
 
 #slicing- vector[startIndex:stopIndex]
-vec1[1:3]
+print(vec1[1:3])
 
 #indexing with names
 vec5 <- c(3,4,15,16)
@@ -191,15 +211,15 @@ print(vec5)
 vec5['Jan']
 vec5[c('Jan','Mar')]
 
-vec5>4
+vec5 > 4
 
 #Compare and select
-vec5[vec5>4]
+print(vec5[vec5>4])
 vec5 > 4
 
 # assign names to filters
 filter <- vec5 > 4
-vec5[filter]
+print(vec5[filter])
 
 
 ### Vector Operations ###
@@ -208,13 +228,13 @@ vec5 <- c(3,4,15,16)
 vec6 <- c(2,3,5,1)
 
 #add elementwise
-vec5 + vec6
+print(vec5 + vec6)
 #subtract elementwise
-vec5 - vec6
+print(vec5 - vec6)
 #multiply elementwise
-vec5*vec6
+print(vec5*vec6)
 #divide elementwise
-vec5/vec6
+print(vec5/vec6)
 
 #using built-in functions on vectors
 #sum() - add all elements
@@ -230,6 +250,12 @@ min(vec6)
 #product of elements
 prod(vec6)
 
+#combine vectors
+client1 <- c(3,4,15,16)
+client2 <- c(2,3,5,1)
+
+vec7 <- c(client1,client2)
+vec7
 ### Print formatting ###
 # print()
 print("hi there!")
@@ -237,10 +263,10 @@ print(vec6)
 print(iris) # measurement samples for 3 flower species /datasets
 
 # paste() : paste (..., sep = " ") - add a default space separator
-paste("hi","there")
-paste("hi","there",sep=" ")
+print(paste("hi","there","uh"))
+print(paste("hi","there",sep=":"))
 paste("hi","there",sep="")
-paste("hi","there",sep="-")
+print(paste("hi","there",sep="-"))
 # paste0(...) is equivalent to paste(...,sep="") 
 paste0("hi","there", ".")
 
@@ -249,21 +275,18 @@ paste0("hi","there", ".")
 # store data in two dimensions
 #v <- c(1,2)
 v <- 1:10 #short notation to create a vector with sequence of numbers
-v
+print(v)
+help(matrix) #help on matrix function
 matrix.numbers <- matrix(v,nrow=2)
-matrix.numbers
+print(matrix.numbers)
 
 matrix.numbers2 <- matrix(v,byrow=TRUE,nrow=2)
-matrix.numbers2
+print(matrix.numbers2)
 
-client1 <- c(3,4,15,16)
-client2 <- c(2,3,5,1)
-
-vec7 <- c(client1,client2)
-vec7
-
-matrix.sales <- matrix(vec7,byrow=TRUE,nrow=2)
-matrix.sales
+v2 <- 1:8
+print(v2)
+matrix.sales <- matrix(v2,byrow=TRUE,nrow=2)
+print(matrix.sales)
 
 #naming matrices
 months <- c('Jan','Feb','Mar','Apr')
@@ -272,6 +295,6 @@ client.names <- c('Client1', 'Client2')
 colnames(matrix.sales) <- months       #name columns using the colnames() function
 rownames(matrix.sales) <- client.names #name rows using the rownames() function
 
-matrix.sales
+print(matrix.sales)
 
 
