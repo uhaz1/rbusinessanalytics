@@ -3,8 +3,8 @@
 x <- 1
 y <- 'happy day'
 
-#packages
-#install.packages("ggplot2")
+# packages
+# install.packages("ggplot2")
 library(ggplot2)
 
 #help
@@ -45,6 +45,7 @@ balance <- 1400
 # Let's see the variable!
 x
 print(x)
+rm(x)
 
 bank.balance <- 1000
 deposit <- 200
@@ -112,23 +113,31 @@ v1 < v2
 3 != 3
 3 != 2
 
-b <- TRUE #FALSE
+b <- TRUE # FALSE
   
 #element-wise comparion of vectors
 vec1 <- c(5,3,8)
 print(vec1)
+class(vec1)
+
 vec2 <- c(4,5,9)
 print(vec2)
-class(vec1)
 
 vec1 > vec2
 
 # compare a number to an entire vector
 vec1 < 4
+
+comparison <- vec1 < 4
+class(comparison)
+print(comparison)
+
 vec1 == 3
+
 vec3 <- c("hi", "there","hello")
 print(vec3)
 class(vec3)
+print(vec3[1])
 
 ### R data types ###
 #numeric - floating point/decimal and integers
@@ -219,6 +228,7 @@ vec5 > 4
 
 # assign names to filters
 filter <- vec5 > 4
+print(filter)
 print(vec5[filter])
 
 
@@ -255,7 +265,8 @@ client1 <- c(3,4,15,16)
 client2 <- c(2,3,5,1)
 
 vec7 <- c(client1,client2)
-vec7
+print(vec7)
+
 ### Print formatting ###
 # print()
 print("hi there!")
@@ -268,7 +279,7 @@ print(paste("hi","there",sep=":"))
 paste("hi","there",sep="")
 print(paste("hi","there",sep="-"))
 # paste0(...) is equivalent to paste(...,sep="") 
-paste0("hi","there", ".")
+print(paste0("hi","there", "."))
 
 
 ### R Matrices ###
@@ -277,6 +288,7 @@ paste0("hi","there", ".")
 v <- 1:10 #short notation to create a vector with sequence of numbers
 print(v)
 help(matrix) #help on matrix function
+
 matrix.numbers <- matrix(v,nrow=2)
 print(matrix.numbers)
 
