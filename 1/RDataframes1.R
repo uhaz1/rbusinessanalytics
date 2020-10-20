@@ -74,11 +74,15 @@ rownames(bank.marketing)
 
 ### data frames - selection and indexing ###
 
+head(bank.marketing)
+
 #referencing cells
 bank.marketing[1,2]
 #get multiple calles in a data frame
 df <- bank.marketing[1:2,1:2]
 print(df)
+class(df)
+
 #referencing rows
 df2 <- bank.marketing[2,]
 print(df2)
