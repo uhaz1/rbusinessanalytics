@@ -1,6 +1,6 @@
 
 #######################################################
-#### Classification Model - LOGISTIC REGRESSION ####
+#### Classification Model - DECISION TREE ####
 #######################################################
 
 ### 1. import data 
@@ -14,7 +14,7 @@
 ###   - Train model on train group
 ###   - Interpret model
 ###   - Plot residuals 
-### 5. Test model - Test model with test data 
+### 5. EVALUATE model - EVALUATE  model with test data 
 
 
 #######################
@@ -25,6 +25,7 @@
 ## Data: Default dataset in the ISLR has sample data on credit card customers
 library(ISLR)
 df <- Default
+
 
 ## view sample data
 head(df, n=10) #top rows
@@ -117,6 +118,8 @@ ggplot(df,aes(balance)) + geom_histogram(fill='blue',alpha=0.5) +labs(x="Balance
 # default rates seem to be higher at higher balance bands
 ggplot(df,aes(balance)) + geom_histogram(aes(fill=default)) +labs(x="Balance band",y="Count",title="Distribution of Amount")
 
+ggplot(df,aes(x=balance, y=income)) + geom_point(aes(color=default)) 
+
 # histograms - distribution of income
 # since income is a CONTINIOUS numeric variable, we are using a histogram
 ggplot(df,aes(income)) + geom_histogram(fill='blue',alpha=0.5) +labs(x="Income band",y="Count",title="Distribution of Amount")
@@ -167,7 +170,7 @@ dim(df) # row and column count
 
 #split up the sample. a boolean vector split is generated
 # SplitRatio = percent of sample==TRUE
-split <- sample.split(df$xdefault, SplitRatio = 0.70) # SplitRatio = percent of sample==TRUE
+split <- sample.split(df$default, SplitRatio = 0.70) # SplitRatio = percent of sample==TRUE
 
 # Training Data
 train = subset(df, split == TRUE)
@@ -176,90 +179,85 @@ train = subset(df, split == TRUE)
 test = subset(df, split == FALSE)
 
 
-###   - TRAIN model on train group
+###   - TRAIN model on train data
 
-# logistic regression model in order to predict Default = Yes
+# RPART PACKAGE IS USED TO BUILD A DECISION TREE
+#install.packages('rpart')
+library(rpart)
 
-# glm() function fits generalized linear models, a class of models that includes 
-# logistic regression. The syntax of the glm() function is similar to that of lm(),
-# except that we must pass in the argument 
-# family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
+# rpart() of the rpart package function fits Decsion Tree models 
+help(rpart)
 
 # how is dummy variable created for default
 contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
 
-help(glm)
-## Train the model for Direction /probability for direction = Up
-glm.fits=glm(default ~ student + balance + income , data=train ,family=binomial)
+## Train the model for Direction /probability for direction = Up. 
+# Use train data
+tree <- rpart(default ~.,method='class',data = train)
 
 #model summary
-summary(glm.fits)
-# The smallest p-value here is associated with Lag1. The negative coefficient for 
-# this predictor suggests that if the market had a positive return yesterday, 
-# then it is less likely to go up today. However, at a value of 0.15, the p-value 
-# is still relatively large, and so there is no clear evidence of a real 
-# association between Lag1 and Direction.
+summary(tree)
 
-# model trained for probability of default=Yes
-contrasts(train$default)  # Yes=1, No=0
+#visualise Decision Tree
+library(rpart.plot)
+prp(tree)
 
-# coef() function in order to access just the coefficients for this fitted model
-coef(glm.fits)
 
-## FEATURE SELECTION
-# If there are lot of features or input variables, 
-# it is desirable to use a subset of variables. 
-# one way to choose the best subset is using stepwise regresiosn using 
-#     the step() function.
-
-help(step)
-#step(object, scope, scale = 0,direction = c("both", "backward", "forward"),trace = 1, keep = NULL, steps = 1000, k = 2, ...)
-# default direction is both.
-#new.step.model <- step(glm.fits)
-#summary(new.step.model)
-#glm.fits <- new.step.model
 
 ##################################
-### 5. TEST  MODEL  ####
+### 5. EVALUATE MODEL  ####
 ##################################
 
-## TEST MODEL USING TEST DATA 
+## EVALUATE MODEL USING TEST DATA 
 
-# The predict() function can be used to predict the probability that the market 
-# will go up, given values of the predictors. 
+# The predict() function can be used to predict the probabilities of 
+# default = Yes  and default = No
 # ?predict
-# vector with predicted PROBABILITY of default using and test data, using the mdoel created using train data
-glm.probs=predict(glm.fits,newdata=test,type="response")
-# print first 10 probabilities
-glm.probs[1:10]
+# test data : matrix with predicted PROBABILITY for YES and NO for Default
+tree.pred=predict(tree,newdata=test)
+class(tree.pred)
+# has  two columns- probabilities for No and Yes
+head(tree.pred)
+
+# convert matrix to data frame
+tree.pred <- as.data.frame(tree.pred)
+
+# function to convert probalities to label Yes/No
+function1 <- function(x){
+  if (x>=0.5){
+    return('Yes')
+  }else{
+    return("No")
+  }
+}
 
 # convert these predicted probabilities into class labels, Yes or No
-glm.pred <- ifelse(glm.probs > 0.5,"Yes","No")
+tree.pred$default <- sapply(tree.pred$Yes, function1)
+head(tree.pred)
+
 
 ## CONFUSION MATRIX 
 #in order to determine how many observations were correctly or incorrectly classified.
-table(glm.pred,test$default)
+table(tree.pred$default,test$default)
 
 # accuracy (tp+tn)/total
-(25+2887)/(3000)  # 0.97 -  - But high false negatives. model not good.
+(35+2876)/(3000)  # 0.97 -  - But high false negatives. model not good.
 
 # recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-25/(25+75)  ## 25% recall- not good
+35/(35+65)  ## 35% recall- not good
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-25/(25+13)  ## 66%
+35/(35+24)  ## 59%
 
 # accuracy (tp+tn)/total
 
-## error rate = 1-0.48 = 52% - worse than random guessing - p-values not good.
+## error rate = 1-0.97 = 3% - worse than random guessing - p-values not good.
 ## error rate
-mean(glm.pred!=test$default)
+mean(tree.pred$default!=test$default)
 
-
-#HOW CAN WE IMPROVE THIS MODEL?
 
 ###################################################
-### MODELING ITERATION 2 - sort class imbalance ###
+### MODELING ITERATION 2 - SORT CLASS IMBALANCE ###
 ###################################################
 
 #install.packages('dplyr')
@@ -279,7 +277,7 @@ df.no.sample <- sample_n(df.no,5000)
 #combine th dataset with default=Yes and the sampled dataset with default=No
 df2 <- union(df.yes,df.no.sample)
 
-###   - Split data into Train and Test Groups
+###   - SPLIT DATA INTO TRAIN AND TEST GROUPS
 # install.packages("caTools")
 library(caTools)
 # use set.seed to reproduce results. expect to get the same sample again with the same seed number
@@ -289,130 +287,70 @@ set.seed(112)
 sample <- sample.split(df2$default, SplitRatio = 0.70) # SplitRatio = percent of sample==TRUE
 
 # Training Data
-train = subset(df2, sample == TRUE)
+train2 = subset(df2, sample == TRUE)
 
 # Testing Data
-test = subset(df2, sample == FALSE)
+test2 = subset(df2, sample == FALSE)
 
 #########################
 #### 4.2 BUILD MODEL ####
 #########################
 
-# logistic regression model in order to predict Default=Yes
+###   - TRAIN model on train data
 
-# glm() function fits generalized linear models, a class of models that includes 
-# logistic regression. The syntax of the glm() function is similar to that of lm(),
-# except that we must pass in the argument 
-# family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
+# rpart() of the rpart package function fits Decsion Tree models 
+help(rpart)
 
-# how is dummy variable created for default
-contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
-
-## Train the model for Direction /probability for direction = Up
-glm.fits=glm(default ~ student + balance + income, data=train ,family=binomial)
+## Train the model for Direction /probability for direction = Up. 
+# Use train data
+tree2 <- rpart(default ~.,method='class',data = train2)
 
 #model summary
-summary(glm.fits)
-# The smallest p-value here is associated with Lag1. The negative coefficient for 
-# this predictor suggests that if the market had a positive return yesterday, 
-# then it is less likely to go up today. However, at a value of 0.15, the p-value 
-# is still relatively large, and so there is no clear evidence of a real 
-# association between Lag1 and Direction.
+summary(tree2)
 
-# model trained for probability of market going up
-contrasts(train$default)  # Up=1, Down=0
-
-# coef() function in order to access just the coefficients for this fitted model
-coef(glm.fits)
+#visualise Decision Tree
+prp(tree2)
 
 ##################################
-### 5.2 TEST  MODEL  ####
+### 5.2 EVALUATE MODEL  ####
 ##################################
 
-# The predict() function can be used to predict the probability that the market 
-# will go up, given values of the predictors. 
+## EVALUATE MODEL USING TEST DATA 
+
+# The predict() function can be used to predict the probabilities of 
+# default = Yes  and default = No
 # ?predict
-# vector with predicted PROBABILITY of default using and test data, using the mdoel created using train data
+#  matrix with predicted PROBABILITIES for YES and NO for Default.
+tree.pred2=predict(tree2,newdata=test2)
+class(tree.pred2)
+# has  two columns- probabilities for No and Yes
+head(tree.pred2)
 
-glm.probs=predict(glm.fits,newdata=test,type="response")
-# print first 10 probabilities
-glm.probs[1:10]
+# convert matrix to data frame
+tree.pred2 <- as.data.frame(tree.pred2)
 
-# convert these predicted probabilities into class labels, Up or Down
-glm.pred <- ifelse(glm.probs > 0.5,"Yes","No")
+# convert these predicted probabilities into class labels, Yes or No
+tree.pred2$default <- sapply(tree.pred2$Yes, function1)
+head(tree.pred2)
 
-#confusion matrix 
+
+## CONFUSION MATRIX 
 #in order to determine how many observations were correctly or incorrectly classified.
-table(glm.pred,test$default)
+table(tree.pred2$default,test2$default)
 
 # accuracy (tp+tn)/total
-(45+1485)/(1600)  # 0.92 -  - But high false negatives. model not good.
+(42+1487)/(1600)  # 0.95 -  - But high false negatives. model not good.
 
 # recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-45/(45+55)  ## 45% recall- not good
+42/(42+58)  ## 42% recall- BETTER THAN previous model
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-45/(45+15)  ## 75%
-
-#########################################################################################
-### MODELING ITERATION 3 - sort class imbalance and remove the most insignificant var(s) ###
-########################################################################################
-
-#######################
-### 4.3 BUILD MODEL ####
-#######################
-
-# logistic regression model in order to predict Direction using Lag1 through Lag5 
-#and Volume.
-
-# glm() function fits generalized linear models, a class of models that includes 
-# logistic regression. The syntax of the glm() function is similar to that of lm(),
-# except that we must pass in the argument 
-# family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
-
-# how is dummy variable created for default
-contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
-
-## Train the model for Direction /probability for direction = Up
-glm.fits=glm(default ~ student + balance , data=train ,family=binomial)
-
-#model summary
-summary(glm.fits)
-# The smallest p-value here is associated with Lag1. The negative coefficient for 
-# this predictor suggests that if the market had a positive return yesterday, 
-# then it is less likely to go up today. However, at a value of 0.15, the p-value 
-# is still relatively large, and so there is no clear evidence of a real 
-# association between Lag1 and Direction.
-
-# model trained for probability of market going up
-contrasts(train$default)  # Up=1, Down=0
-
-# coef() function in order to access just the coefficients for this fitted model
-coef(glm.fits)
-
-##################################
-### 5.3 TEST  MODEL  ####
-##################################
-
-# The predict() function can be used to predict the probability that the market 
-# will go up, given values of the predictors. 
-# ?predict
-glm.probs=predict(glm.fits,newdata=test,type="response")
-# print first 10 probabilities
-glm.probs[1:10]
-
-# convert these predicted probabilities into class labels, Up or Down
-glm.pred <- ifelse(glm.probs > 0.5,"Yes","No")
-
-#confusion matrix 
-#in order to determine how many observations were correctly or incorrectly classified.
-table(glm.pred,test$default)
+42/(42+13)  ## 76% - better than previous model
 
 # accuracy (tp+tn)/total
-(49+1486)/(1600)  # 0.959 -  - But high false negatives. model not good.
 
-# recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-49/(49+51)  ## 49% recall- not good
+## error rate = 1-0.96 = 4% - worse than random guessing - p-values not good.
+## error rate
+mean(tree.pred2$default!=test2$default)
 
-# precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-49/(49+14)  ## 64%
+
