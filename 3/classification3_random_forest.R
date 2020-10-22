@@ -240,7 +240,7 @@ df2 <- union(df.yes,df.no.sample)
 # install.packages("caTools")
 library(caTools)
 # use set.seed to reproduce results. expect to get the same sample again with the same seed number
-set.seed(112) 
+set.seed(113) 
 
 # Split up the sample, basically randomly assigns a booleans to a new column "sample"
 sample <- sample.split(df2$default, SplitRatio = 0.70) # SplitRatio = percent of sample==TRUE
@@ -264,7 +264,7 @@ rf2 <- randomForest(default ~.,method='class',data = train2,importance = TRUE)
 #model summary
 #summary(tree)
 
-## model's confusion on its own trianing set
+## model's confusion on its own training set
 rf2$confusion
 
 #feature importance with model$importance
@@ -295,13 +295,13 @@ head(rf.pred2)
 table(rf.pred2,test2$default)
 
 # accuracy (tp+tn)/total
-(42+1487)/(1600)  # 0.96 -  - But high false negatives. model not good.
+(47+1487)/(1600)  # 0.96 -  - But high false negatives. model not good.
 
 # recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-42/(45+58)  ## 40% recall- BETTER THAN previous model
+47/(47+53)  ## 40% recall- BETTER THAN previous model
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-42/(42+13)  ## 73% - better than previous model
+47/(47+13)  ## 78% - better than previous model
 
 # accuracy (tp+tn)/total
 
