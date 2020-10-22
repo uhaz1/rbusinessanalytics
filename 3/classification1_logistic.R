@@ -189,7 +189,7 @@ test = subset(df, split == FALSE)
 contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
 
 help(glm)
-## Train the model for Direction /probability for direction = Up
+## Train the model for default = Yes
 glm.fits=glm(default ~ student + balance + income , data=train ,family=binomial)
 
 #model summary
@@ -308,7 +308,7 @@ test = subset(df2, sample == FALSE)
 # how is dummy variable created for default
 contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
 
-## Train the model for Direction /probability for direction = Up
+## Train the model for default = Yes
 glm.fits=glm(default ~ student + balance + income, data=train ,family=binomial)
 
 #model summary
@@ -353,66 +353,3 @@ table(glm.pred,test$default)
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
 45/(45+15)  ## 75%
-
-#########################################################################################
-### MODELING ITERATION 3 - sort class imbalance and remove the most insignificant var(s) ###
-########################################################################################
-
-#######################
-### 4.3 BUILD MODEL ####
-#######################
-
-# logistic regression model in order to predict Direction using Lag1 through Lag5 
-#and Volume.
-
-# glm() function fits generalized linear models, a class of models that includes 
-# logistic regression. The syntax of the glm() function is similar to that of lm(),
-# except that we must pass in the argument 
-# family=binomial in order to tell R to run a logistic regression rather than some other type of generalized linear model.
-
-# how is dummy variable created for default
-contrasts(df$default)  # Yes=1, No=0 ; model will be trained for probability of market going up
-
-## Train the model for Direction /probability for direction = Up
-glm.fits=glm(default ~ student + balance , data=train ,family=binomial)
-
-#model summary
-summary(glm.fits)
-# The smallest p-value here is associated with Lag1. The negative coefficient for 
-# this predictor suggests that if the market had a positive return yesterday, 
-# then it is less likely to go up today. However, at a value of 0.15, the p-value 
-# is still relatively large, and so there is no clear evidence of a real 
-# association between Lag1 and Direction.
-
-# model trained for probability of market going up
-contrasts(train$default)  # Up=1, Down=0
-
-# coef() function in order to access just the coefficients for this fitted model
-coef(glm.fits)
-
-##################################
-### 5.3 TEST  MODEL  ####
-##################################
-
-# The predict() function can be used to predict the probability that the market 
-# will go up, given values of the predictors. 
-# ?predict
-glm.probs=predict(glm.fits,newdata=test,type="response")
-# print first 10 probabilities
-glm.probs[1:10]
-
-# convert these predicted probabilities into class labels, Up or Down
-glm.pred <- ifelse(glm.probs > 0.5,"Yes","No")
-
-#confusion matrix 
-#in order to determine how many observations were correctly or incorrectly classified.
-table(glm.pred,test$default)
-
-# accuracy (tp+tn)/total
-(49+1486)/(1600)  # 0.959 -  - But high false negatives. model not good.
-
-# recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-49/(49+51)  ## 49% recall- not good
-
-# precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-49/(49+14)  ## 64%

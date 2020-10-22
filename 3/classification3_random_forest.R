@@ -1,6 +1,6 @@
 
 #######################################################
-#### Classification Model - DECISION TREE ####
+#### Classification Model - RANDOM FOREST ####
 #######################################################
 
 ### 1. import data 
@@ -156,24 +156,27 @@ test = subset(df, split == FALSE)
 
 ###   - TRAIN model on train data
 
-# RPART PACKAGE IS USED TO BUILD A DECISION TREE
-#install.packages('rpart')
-library(rpart)
+# RPART PACKAGE IS USED TO BUILD A a RANDOM FOREST MODEL
+#install.packages('randomForest')
+library(randomForest)
 
-# rpart() of the rpart package function fits Decsion Tree models 
-help(rpart)
+# randomForest() of the randomForest package function fits RANDOM FOREST models 
+help(randomForest)
 
-## Train the model for default = Yes
-# Use train data
-tree <- rpart(default ~.,method='class',data = train)
+## Train the model for default = Yes. 
+# Use train data. Add importance = TRUE to assess importance of predictors
+rf <- randomForest(default ~.,method='class',data = train,importance = TRUE)
 
 #model summary
 #summary(tree)
 
-#visualise Decision Tree
-library(rpart.plot)
-prp(tree)
+## model's confusion on its own trianing set
+rf$confusion
 
+#feature importance with model$importance
+# https://stats.stackexchange.com/questions/92419/relative-importance-of-a-set-of-predictors-in-a-random-forests-classification-in
+# https://stackoverflow.com/questions/736514/r-random-forests-variable-importance
+rf$importance
 
 
 ##################################
@@ -186,46 +189,30 @@ prp(tree)
 # default = Yes  and default = No
 # ?predict
 # test data : matrix with predicted PROBABILITY for YES and NO for Default
-tree.pred=predict(tree,newdata=test)
-class(tree.pred)
+rf.pred=predict(rf,newdata=test)
+class(rf.pred)
 # has  two columns- probabilities for No and Yes
-head(tree.pred)
-
-# convert matrix to data frame
-tree.pred <- as.data.frame(tree.pred)
-
-# function to convert probalities to label Yes/No
-function1 <- function(x){
-  if (x>=0.5){
-    return('Yes')
-  }else{
-    return("No")
-  }
-}
-
-# convert these predicted probabilities into class labels, Yes or No
-tree.pred$default <- sapply(tree.pred$Yes, function1)
-head(tree.pred)
+head(rf.pred)
 
 
-## CONFUSION MATRIX 
+## CONFUSION MATRIX : predicted vs. actual
 #in order to determine how many observations were correctly or incorrectly classified.
-table(tree.pred$default,test$default)
+table(rf.pred,test$default)
 
 # accuracy (tp+tn)/total
-(35+2876)/(3000)  # 0.97 -  - But high false negatives. model not good.
+(24+2884)/(3000)  # 0.97 -  - But high false negatives. model not good.
 
 # recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-35/(35+65)  ## 35% recall- not good
+24/(24+76)  ## 24% recall- not good
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-35/(35+24)  ## 59%
+24/(24+16)  ## 60%
 
 # accuracy (tp+tn)/total
 
 ## error rate = 1-0.97 = 3% - worse than random guessing - p-values not good.
 ## error rate
-mean(tree.pred$default!=test$default)
+mean(rf.pred!=test$default)
 
 
 ###################################################
@@ -270,18 +257,22 @@ test2 = subset(df2, sample == FALSE)
 
 ###   - TRAIN model on train data
 
-# rpart() of the rpart package function fits Decsion Tree models 
-help(rpart)
-
-## Train the model for default = Yes
-# Use train data
-tree2 <- rpart(default ~.,method='class',data = train2)
+## Train the model for default = Yes. 
+# Use train data. Add importance = TRUE to assess importance of predictors
+rf2 <- randomForest(default ~.,method='class',data = train2,importance = TRUE)
 
 #model summary
-summary(tree2)
+#summary(tree)
 
-#visualise Decision Tree
-prp(tree2)
+## model's confusion on its own trianing set
+rf2$confusion
+
+#feature importance with model$importance
+# https://stats.stackexchange.com/questions/92419/relative-importance-of-a-set-of-predictors-in-a-random-forests-classification-in
+# https://stackoverflow.com/questions/736514/r-random-forests-variable-importance
+rf2$importance
+
+
 
 ##################################
 ### 5.2 EVALUATE MODEL  ####
@@ -293,36 +284,29 @@ prp(tree2)
 # default = Yes  and default = No
 # ?predict
 #  matrix with predicted PROBABILITIES for YES and NO for Default.
-tree.pred2=predict(tree2,newdata=test2)
-class(tree.pred2)
+rf.pred2=predict(rf2,newdata=test2)
+class(rf.pred2)
 # has  two columns- probabilities for No and Yes
-head(tree.pred2)
-
-# convert matrix to data frame
-tree.pred2 <- as.data.frame(tree.pred2)
-
-# convert these predicted probabilities into class labels, Yes or No
-tree.pred2$default <- sapply(tree.pred2$Yes, function1)
-head(tree.pred2)
+head(rf.pred2)
 
 
 ## CONFUSION MATRIX 
 #in order to determine how many observations were correctly or incorrectly classified.
-table(tree.pred2$default,test2$default)
+table(rf.pred2,test2$default)
 
 # accuracy (tp+tn)/total
-(45+1483)/(1600)  # 0.95 -  - But high false negatives. model not good.
+(42+1487)/(1600)  # 0.96 -  - But high false negatives. model not good.
 
 # recall tp/(tp+fn) - what proportion of the true defaulters were predicted as defaulter
-45/(45+55)  ## 45% recall- BETTER THAN previous model
+42/(45+58)  ## 40% recall- BETTER THAN previous model
 
 # precision tp/(tp+fp) - of the ones predicted Yes (Defaulter), how many are actually Yes (defaulter)
-45/(45+17)  ## 73% - better than previous model
+42/(42+13)  ## 73% - better than previous model
 
 # accuracy (tp+tn)/total
 
-## error rate = 1-0.95 = 5% - worse than random guessing - p-values not good.
+## error rate = 1-0.96 = 4% - worse than random guessing - p-values not good.
 ## error rate
-mean(tree.pred2$default!=test2$default)
+mean(rf.pred2!=test2$default)
 
 
