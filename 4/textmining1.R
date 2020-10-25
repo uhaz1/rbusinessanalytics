@@ -72,11 +72,13 @@ inspect(corpus[[1]])
 # corpus <- tm_map(corpus,removeWords, new_stops)
 
 # stemming
-# stemming- reduce words to word to their word stem, base or root form
+# stemming- reduce words to their word stem, base or root form
 # eg. cats, catlike, and catty -> cat; fishing, fished, and fisher -> fish
 corpus <- tm_map(corpus,stemDocument)
 inspect(corpus[[1]])
 
+install.packages('SnowballC')
+library(SnowballC)
 
 ##### FILTERS #####
 
